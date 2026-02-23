@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
+
 const pool = require('../config/db');
 
 router.post('/register', async (req, res) => {
@@ -36,5 +39,45 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ error: "Registration failed" });
     }
 });
+
+router.post('/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email and password required" });
+        }
+
+        const [users] = await pool.query(
+            'SELECT * FROM users WHERE email = ?',
+            [email]
+        );
+
+        if (users.length === 0) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        const user = users[0];
+
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        const token = jwt.sign(
+            { userId: user.id },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        res.json({ message: "Login successful", token });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Login failed" });
+    }
+});
+
 
 module.exports = router;
