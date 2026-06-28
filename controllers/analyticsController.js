@@ -150,4 +150,37 @@ const getBudgets = async (req, res, next) => {
     } catch (error) { next(error); }
 };
 
-module.exports = { daily, monthly, categories, healthScore, personality, anomalies, whatIf, setBudget, getBudgets };
+const getCategoriesList = async (req, res, next) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM categories ORDER BY id ASC');
+        res.json({ categories: rows });
+    } catch (error) { next(error); }
+};
+
+const tagTransaction = async (req, res, next) => {
+    try {
+        const { transactionId } = req.params;
+        const { category_id } = req.body;
+
+        if (!category_id) return res.status(400).json({ error: 'category_id is required' });
+
+        // Verify transaction belongs to this user
+        const [tx] = await pool.query(
+            'SELECT id FROM transactions WHERE id = ? AND (sender_id = ? OR receiver_id = ?)',
+            [transactionId, req.userId, req.userId]
+        );
+        if (tx.length === 0) return res.status(404).json({ error: 'Transaction not found' });
+
+        // Upsert category tag
+        await pool.query(
+            `INSERT INTO transaction_categories (transaction_id, category_id)
+             VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE category_id = ?`,
+            [transactionId, category_id, category_id]
+        );
+
+        res.json({ message: 'Transaction tagged successfully' });
+    } catch (error) { next(error); }
+};
+
+module.exports = { daily, monthly, categories, healthScore, personality, anomalies, whatIf, setBudget, getBudgets, getCategoriesList, tagTransaction };
