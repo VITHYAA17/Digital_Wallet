@@ -12,6 +12,7 @@ const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/authRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 app.use(helmet());
 app.use(express.json());
@@ -24,7 +25,10 @@ app.use('/api/wallet', walletRoutes);
 // Part 2 — Fraud & Webhooks
 app.use('/api/webhooks', webhookRoutes);
 
-app.get('/health', (req, res) => res.json({ status: 'ok', part: 'Part 2 - Fraud & Webhooks' }));
+// Part 3 — Analytics
+app.use('/api/analytics', analyticsRoutes);
+
+app.get('/health', (req, res) => res.json({ status: 'ok', part: 'Part 3 - Analytics' }));
 
 app.use(errorHandler);
 
