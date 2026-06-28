@@ -14,6 +14,7 @@ const authRoutes = require('./routes/authRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const schedulerRoutes = require('./routes/schedulerRoutes');
 
 app.use(helmet());
 app.use(cors({
@@ -34,12 +35,16 @@ app.use('/api/webhooks', webhookRoutes);
 // Part 3 — Analytics
 app.use('/api/analytics', analyticsRoutes);
 
-app.get('/health', (req, res) => res.json({ status: 'ok', part: 'Part 3 - Analytics' }));
+// Part 4 — Bill Scheduler
+app.use('/api/schedules', schedulerRoutes);
+
+app.get('/health', (req, res) => res.json({ status: 'ok', part: 'Part 4 - Bill Scheduler' }));
 
 app.use(errorHandler);
 
 // Background jobs
 require('./jobs/reliabilityJobs');
+require('./jobs/scheduler');
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
