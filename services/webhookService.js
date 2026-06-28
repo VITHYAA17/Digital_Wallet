@@ -61,7 +61,7 @@ const processWebhookDeliveries = async (userId = null) => {
                 ? new Date(Date.now() + delayMinutes * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ')
                 : null;
 
-            const newStatus = newAttempts >= 3 ? 'FAILED' : 'FAILED';
+            const newStatus = newAttempts >= 3 ? 'FAILED' : 'PENDING';
 
             await pool.query(
                 `UPDATE webhook_deliveries 
