@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { daily, monthly, categories, healthScore, personality, anomalies, whatIf, setBudget, getBudgets } = require('../controllers/analyticsController');
+const { daily, monthly, categories, healthScore, personality, anomalies, whatIf, setBudget, getBudgets, getCategoriesList, tagTransaction } = require('../controllers/analyticsController');
 const { budgetValidation } = require('../validations/walletValidation');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -15,5 +15,7 @@ router.get('/anomalies', anomalies);
 router.get('/what-if', whatIf);
 router.post('/budgets', budgetValidation, setBudget);
 router.get('/budgets', getBudgets);
+router.get('/categories-list', getCategoriesList);
+router.post('/tag/:transactionId', tagTransaction);
 
 module.exports = router;
