@@ -120,6 +120,12 @@ const payNow = async (req, res, next) => {
                 [nextDate, id]
             );
 
+            await connection.query(
+                `INSERT INTO audit_logs (user_id, action, entity, entity_id, meta)
+                 VALUES (?, 'MANUAL_PAY_SUCCESS', 'scheduled_payments', ?, ?)`,
+                [req.userId, id, JSON.stringify({ amount: payAmount, name: schedule.name })]
+            );
+
             await connection.commit();
             res.json({ message: `${schedule.name} paid successfully`, next_due_date: nextDate });
         } catch (err) {
