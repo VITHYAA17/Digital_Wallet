@@ -4,6 +4,7 @@ validateEnv();
 
 const express = require('express');
 const helmet = require('helmet');
+const cors = require('cors');
 const app = express();
 
 const { globalLimiter } = require('./middleware/rateLimiter');
@@ -15,6 +16,11 @@ const webhookRoutes = require('./routes/webhookRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 
 app.use(helmet());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key']
+}));
 app.use(express.json());
 app.use(globalLimiter);
 
